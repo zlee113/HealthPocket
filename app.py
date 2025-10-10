@@ -1,4 +1,14 @@
+"""
+HealthPocket
+Authors: Brianna Rodriguez, Zachary Lee
+Date: 10/9/2025
+
+@brief Main file to run the entire application and serve the various url's needed.
+@file app.py
+"""
+
 from flask import Flask, render_template, request, redirect, url_for, flash
+import csv
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # needed for flash messages
@@ -29,5 +39,22 @@ def login():
 def dashboard():
     return "<h1>Welcome to your dashboard!!! yay!!</h1>"
 
+@app.route("/create_account", methods=["GET", "POST"])
+def create_account():
+    if request.method == "POST":
+        # Get the username and password from the account creation
+        new_username = request.form.get("username")
+        new_password = request.form.get("password")
+
+        # Write the username and password to a csv
+        # TODO: Update with actual user and password requirements,
+        # and change csv to be an actual database
+        with open("accounts.csv", "a", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow([new_username, new_password])
+        return redirect(url_for("dashboard"))
+
+    return render_template("create_account.html")
+    
 if __name__ == "__main__":
     app.run(debug=True)

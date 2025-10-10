@@ -49,6 +49,13 @@ def create_account():
         # Write the username and password to a csv
         # TODO: Update with actual user and password requirements,
         # and change csv to be an actual database
+        with open("accounts.csv", "r", newline="") as csvfile:
+            reader = csv.reader(csvfile)
+            for row in reader:
+                if (row[0] == new_username):
+                    flash("Username already exists")
+                    return redirect(url_for("create_account"))
+
         with open("accounts.csv", "a", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([new_username, new_password])

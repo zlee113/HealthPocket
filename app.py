@@ -9,6 +9,7 @@ Date: 10/9/2025
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 import csv
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # needed for flash messages
@@ -49,12 +50,21 @@ def create_account():
         # Write the username and password to a csv
         # TODO: Update with actual user and password requirements,
         # and change csv to be an actual database
+
+        #need to init accounts.csv
+        if not os.path.exists("accounts.csv"):
+            with open("accounts.csv", "w", newline="") as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(["username","password"])    #header row check
+        
         with open("accounts.csv", "r", newline="") as csvfile:
             reader = csv.reader(csvfile)
+            next(reader,None) #skip header check
             for row in reader:
                 if (row[0] == new_username):
-                    flash("Username already exists")
-                    return redirect(url_for("create_account"))
+                    if len(row)>0 and row[0] == new_username:
+                        flash("Username already exists")
+                        return redirect(url_for("create_account"))
 
         with open("accounts.csv", "a", newline="") as csvfile:
             writer = csv.writer(csvfile)

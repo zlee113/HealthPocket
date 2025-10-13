@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './Login.css';
+import { useNavigate } from "react-router-dom";
 
 // Renders the small gradient "HP" logo used in the sign-in header
 function HPLogo() {
@@ -51,7 +52,17 @@ function Login() {
     setErrors(nextPage);
     return nextPage.username === '' && nextPage.password === '';
   }
-
+  /*
+  function Home() {
+    const navigate = useNavigate();
+  
+    const handleCreateAccount = () => {
+      navigate("/create-account.html");
+    };
+  
+  }
+  */
+ 
   // Handles Submit action: POST credentials to backend and route on to user dashboard on success
   async function handleSubmit(e) {
     e.preventDefault();
@@ -87,6 +98,7 @@ function Login() {
       }
 
       // success
+      //dashboard go here
       window.location.href = '/success.html';
     } catch (err) {
       setErrors({ username: '', password: 'Network error. Please try again.' });
@@ -162,9 +174,22 @@ function Login() {
 
           <button type="submit" className="submit">Sign in</button>
         </form>
-        <footer className="footer">Don’t have an account? <button type="button" className="linkButton" onClick={() => alert('Create account clicked (demo)')}>Create one</button></footer>
-      </section>
+        <footer className="footer">
+        Don’t have an account?{" "}
+        <button
+      type="button"
+      className="linkButton"
+      onClick={() => {
+      // Simply navigate to the Flask route that serves create_account.html
+      window.location.href = "http://localhost:5001/create_account";
+    }}
+  >
+    Create one
+  </button>
+</footer>
+        </section>
     </main>
   );
 }
 export default Login;
+

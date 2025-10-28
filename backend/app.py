@@ -70,7 +70,7 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-    return "<h1>Welcome to your dashboard!!! yay!!</h1>"
+    return jsonify({"messgae": "Welcome to dashboard"})
 
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():

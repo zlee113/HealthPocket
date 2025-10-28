@@ -99,7 +99,9 @@ function Login() {
 
       // success
       //dashboard go here
-      window.location.href = '/success.html';
+      //window.location.href = '/success.html';
+      localStorage.setItem('hp_username',username)
+      window.location.hash = '#/dashboard';
     } catch (err) {
       setErrors({ username: '', password: 'Network error. Please try again.' });
     }

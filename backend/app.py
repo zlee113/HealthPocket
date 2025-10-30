@@ -1,3 +1,4 @@
+#app.py
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_cors import CORS
 import csv
@@ -104,6 +105,90 @@ def create_account():
         return redirect(url_for("dashboard"))
 
     return render_template("create_account.html")
+#30
+@app.route("/medications")
+def medications():
+    username = request.args.get("user", "")
+
+    # load master list
+    master_list = []
+    with open("med_master.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        master_list = [row["medication"] for row in reader]
+
+    # load user meds
+    user_list = []
+    with open("user_meds.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        user_list = [row["medication"] for row in reader if row["username"] == username]
+
+    return jsonify({"masterList": master_list, "userList": user_list})
+
+@app.route("/add_medication", methods=["POST"])
+def add_medication():
+    data = request.get_json()
+    username = data.get("username")
+    med = data.get("medication")
+
+    # Add to master list if not already there
+    master_meds = []
+    with open("med_master.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        master_meds = [row["medication"] for row in reader]
+    if med not in master_meds:
+        with open("med_master.csv", "a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow([med])
+
+    # Add to user meds if not already there
+    user_meds = []
+    with open("user_meds.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        user_meds = [(row["username"], row["medication"]) for row in reader]
+
+    if (username, med) not in user_meds:
+        with open("user_meds.csv", "a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow([username, med])
+
+    return jsonify({"ok": True})
+
+
+
+@app.route("/remove_medication", methods=["POST"])
+def remove_medication():
+    data = request.get_json()
+    username = data.get("username")
+    med = data.get("medication")
+
+    # Step 1: Remove from user_meds.csv
+    with open("user_meds.csv", newline="", encoding="utf-8") as f:
+        reader = list(csv.DictReader(f))
+
+    updated_rows = [row for row in reader if not (row["username"] == username and row["medication"] == med)]
+
+    with open("user_meds.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["username", "medication"])
+        writer.writeheader()
+        writer.writerows(updated_rows)
+
+    # Step 2 (optional): If no user has this med anymore, remove from master
+    '''
+    meds_still_used = {row["medication"] for row in updated_rows}
+
+    with open("med_master.csv", newline="", encoding="utf-8") as f:
+        master_rows = list(csv.DictReader(f))
+
+    master_filtered = [row for row in master_rows if row["medication"] in meds_still_used]
+
+    with open("med_master.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["medication"])
+        writer.writeheader()
+        writer.writerows(master_filtered)
+    '''
+    return jsonify({"ok": True})
+
+#30 end
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', '5001'))

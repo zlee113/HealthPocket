@@ -1,8 +1,10 @@
+//login.js
 import { useState } from 'react';
 import './Login.css';
 import { useNavigate } from "react-router-dom";
 
 // Renders the small gradient "HP" logo used in the sign-in header
+
 function HPLogo() {
   return (
     <svg
@@ -100,8 +102,11 @@ function Login() {
       // success
       //dashboard go here
       //window.location.href = '/success.html';
-      localStorage.setItem('hp_username',username)
+      localStorage.setItem('hp_username',username);
       window.location.hash = '#/dashboard';
+      //navigate('/dashboard');
+      
+      
     } catch (err) {
       setErrors({ username: '', password: 'Network error. Please try again.' });
     }

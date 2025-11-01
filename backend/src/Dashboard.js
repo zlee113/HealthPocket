@@ -18,6 +18,9 @@ function Dashboard() {
   const [medMasterList, setMedMasterList] = useState([]); // master medication list
   const [userMeds, setUserMeds] = useState([]);           // user's medications
   const [newMed, setNewMed] = useState("");               // text input
+  const [medPrices, setMedPrices] = useState([]);	  // med prices for each insurance company
+  const [insuranceCompanies, setInsuranceCompanies] = useState([]);	  // different insurance companies
+  const [medPricesLoaded, setMedPricesLoaded] = useState(false);	  // Prices load when tab
   //
   useEffect(() => {
     try {
@@ -73,7 +76,6 @@ function Dashboard() {
     }
   };
   
-
   const handleRemoveMedication = async (med) => {
     // Optimistically update UI
     setUserMeds(prev => prev.filter(m => m !== med));
@@ -89,7 +91,16 @@ function Dashboard() {
     }
   };
   
-  
+  const fetchMedPrices = async () => {
+    const res = await fetch("/compare_medications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+    const data = await res.json();
+    setMedPrices(data.medications);
+    setMedPricesLoaded(true);  // mark as loaded
+  };
   
 
   return (
@@ -124,6 +135,15 @@ function Dashboard() {
               Insurance Plans
             </li>
             <li
+              className={activeTab === "med_prices" ? "active" : ""}
+              onClick={() => {
+		fetchMedPrices();
+		setActiveTab("med_prices");
+	      }}
+            >
+	      Medication Price Comparison
+            </li>
+            <li
               className={activeTab === "profile" ? "active" : ""}
               onClick={() => setActiveTab("profile")}
             >
@@ -135,6 +155,37 @@ function Dashboard() {
         {/* Main content */}
         <main className="dashboard-main">
           {activeTab === "insurance" && <h2>Insurance Plans</h2>}
+	  {activeTab === "med_prices" && (
+	    <div>
+	      <h2>Medication Price Comparison</h2>
+	      {medPrices.length === 0 ? (
+		      <p> No Medications </p>
+	      ) : (
+	      <table>
+		<thead>
+                  <tr>
+                    <th>Medication</th>
+                    <th>Out of Pocket</th>
+                    {Object.keys(medPrices[0].insuranceRates).map(company => (
+                    <th key={company}>{company}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                {medPrices.map((med) => (
+                  <tr key={med.name}>
+                  <td>{med.name}</td>
+                  <td>${med.outOfPocket.toFixed(2)}</td>
+                  {Object.values(med.insuranceRates).map((rate, idx) => (
+                  <td key={idx}>${rate.toFixed(2)}</td>
+                  ))}
+                  </tr>
+                  ))}
+                 </tbody>
+               </table>
+	      )}
+	    </div>
+	  )}
           {activeTab === "profile" && <h2>My Profile</h2>}
           {activeTab === "medications" && (
   <div>

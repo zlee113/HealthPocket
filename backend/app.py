@@ -188,7 +188,53 @@ def remove_medication():
     '''
     return jsonify({"ok": True})
 
-#30 end
+@app.route("/compare_medications", methods=["POST"])
+def compare_medication():
+    data = request.get_json()
+    username = data.get("username")
+
+    # Grab the medication for the following user
+    with open("user_meds.csv", "r") as user_meds_csv:
+        reader = csv.DictReader(user_meds_csv)
+        user_meds = [row["medication"] for row in reader if row["username"] == username]
+
+    # Now grab the prices of these Meds
+    med_prices = {}
+    with open("popular_medicine_list.csv", "r") as med_prices_csv:
+        reader = csv.DictReader(med_prices_csv)
+        for row in reader:
+            med = row["Name"]
+            price = float(row["Price"])
+            print("PRICE: " + str(price))
+            med_prices[med] = price
+    print(med_prices)
+
+    # Get the insurance rates for prescriptions
+    insurance_rates = {}
+    with open("fake_insurance_database.csv", "r") as med_prices_csv:
+        reader = csv.DictReader(med_prices_csv)
+        print("CSV headers:", reader.fieldnames)  # <-- check exact names
+        for row in reader:
+            print(row["Company"],row["rate"])
+            insurance_rates[row["Company"]] = float(row["rate"])
+
+    # Combine into one json
+    result = []
+    for med in user_meds:
+        price = med_prices.get(med, 0)
+        rates = {company: round(price * (1 - discount), 2)
+                 for company, discount in insurance_rates.items()}
+        result.append({
+            "name": med,
+            "outOfPocket": price,
+            "insuranceRates": rates
+        })
+
+    print(result)
+    return jsonify({"medications": result})
+
+
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', '5001'))

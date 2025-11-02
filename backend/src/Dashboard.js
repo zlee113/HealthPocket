@@ -242,37 +242,38 @@ function Dashboard() {
 
  
 
-	  {activeTab === "med_prices" && (
-	    <div>
-	      <h2>Medication Price Comparison</h2>
-	      {medPrices.length === 0 ? (
-		      <p> No Medications </p>
-	      ) : (
-	      <table>
-		<thead>
-                  <tr>
-                    <th>Medication</th>
-                    <th>Out of Pocket</th>
-                    {Object.keys(medPrices[0].insuranceRates).map(company => (
-                    <th key={company}>{company}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                {medPrices.map((med) => (
-                  <tr key={med.name}>
-                  <td>{med.name}</td>
-                  <td>${med.outOfPocket.toFixed(2)}</td>
-                  {Object.values(med.insuranceRates).map((rate, idx) => (
-                  <td key={idx}>${rate.toFixed(2)}</td>
-                  ))}
-                  </tr>
-                  ))}
-                 </tbody>
-               </table>
-	      )}
-	    </div>
-	  )}
+{activeTab === "med_prices" && (
+  <div className="med-price-tab">
+    <h2>Medication Price Comparison</h2>
+    {medPrices.length === 0 ? (
+      <p>No Medications</p>
+    ) : (
+      <table className="med-price-table">
+        <thead>
+          <tr>
+            <th>Medication</th>
+            <th>Out of Pocket</th>
+            {Object.keys(medPrices[0].insuranceRates).map((company) => (
+              <th key={company}>{company}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {medPrices.map((med) => (
+            <tr key={med.name}>
+              <td>{med.name}</td>
+              <td>${med.outOfPocket.toFixed(2)}</td>
+              {Object.values(med.insuranceRates).map((rate, idx) => (
+                <td key={idx}>${rate.toFixed(2)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+)}
+
           {activeTab === "profile" && (
           <div className="profile-tab">
             <h2>My Profile</h2>

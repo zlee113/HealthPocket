@@ -126,4 +126,32 @@
   .profile-card ul {
     margin: 8px 0 0 16px;
   }
+
+  /* Medication Price Table Styling */
+.med-price-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  text-align: center; /* center all text */
+}
+
+.med-price-table th,
+.med-price-table td {
+  border: 1px solid #ccc; /* add borders for separation */
+  padding: 10px 8px;
+}
+
+.med-price-table th {
+  background-color: #f4f4f4; /* light header background */
+  font-weight: bold;
+}
+
+.med-price-table tr:nth-child(even) {
+  background-color: #fafafa; /* subtle zebra striping for rows */
+}
+
+.med-price-table tr:hover {
+  background-color: #f0f8ff; /* hover effect */
+}
+
   

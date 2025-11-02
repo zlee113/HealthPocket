@@ -34,6 +34,8 @@ function Dashboard() {
   const [medPrices, setMedPrices] = useState([]);	  // med prices for each insurance company
   const [insuranceCompanies, setInsuranceCompanies] = useState([]);	  // different insurance companies
   const [medPricesLoaded, setMedPricesLoaded] = useState(false);	  // Prices load when tab
+  const [userInsurance, setUserInsurance] = useState(""); // store current insurance plan
+
   //
   useEffect(() => {
     try {
@@ -129,6 +131,23 @@ function Dashboard() {
   
     fetchInsurancePlans();
   }, []);
+  
+  useEffect(() => {
+    const fetchUserInsurance = async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/user_insurance?user=${username}`);
+        const data = await res.json();
+        setUserInsurance(data.insurance || "Not selected");
+      } catch (err) {
+        console.error("Error fetching user insurance:", err);
+        setUserInsurance("Not selected");
+      }
+    };
+  
+    if (username) {
+      fetchUserInsurance();
+    }
+  }, [username]);
   
   
 
@@ -254,7 +273,30 @@ function Dashboard() {
 	      )}
 	    </div>
 	  )}
-          {activeTab === "profile" && <h2>My Profile</h2>}
+          {activeTab === "profile" && (
+          <div className="profile-tab">
+            <h2>My Profile</h2>
+            <div className="profile-card">
+              <p><strong>Name:</strong> {username}</p>
+
+              <div>
+                <strong>Current Medications:</strong>
+                {userMeds.length === 0 ? (
+                  <p>No medications added</p>
+                ) : (
+                  <ul>
+                    {userMeds.map((med, index) => (
+                      <li key={index}>{med}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <p><strong>Current Insurance Plan:</strong> {userInsurance || "Not selected"}</p>
+            </div>
+          </div>
+        )}
+
           {activeTab === "medications" && (
   <div>
     <h2>Add Your Medications</h2>

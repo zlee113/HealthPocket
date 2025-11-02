@@ -1,8 +1,9 @@
 #app.py
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 from flask_cors import CORS
 import csv
 import os
+import pandas as pd
 
 app = Flask(__name__)
 # Allow requests from the frontend during development
@@ -233,7 +234,26 @@ def compare_medication():
     print(result)
     return jsonify({"medications": result})
 
+#added nov 2
+@app.route("/insurance_plans", methods=["GET"])
+def get_insurance_plans():
+    try:
+        # Adjust this path if needed (depends on where your backend runs)
+        csv_path = os.path.join(os.path.dirname(__file__), "InsuranceDB.csv")
+        print("reading csv from:", csv_path)
 
+        # Load the CSV
+        df = pd.read_csv(csv_path)
+        
+        # Convert to list of dictionaries
+        plans = df.fillna("").to_dict(orient="records")
+
+        
+        # Return JSON response
+        return jsonify(plans)
+    except Exception as e:
+        print("Error loading insurance plans:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

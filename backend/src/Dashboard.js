@@ -14,6 +14,19 @@ function Dashboard() {
     window.location.hash = '#/login';
 
   };
+
+  //nov 2
+  const getLogo = (company) => {
+    if (!company) return "/logos/default.svg";
+    const name = company.toLowerCase();
+
+    if (name.includes("united")) return "/logos/unitedhealthcare.svg";
+    if (name.includes("sentara")) return "/logos/sentara.svg";
+    if (name.includes("anthem")) return "/logos/anthem.svg";
+
+    return "/logos/default.svg"; // fallback
+  };
+
   //added 30
   const [medMasterList, setMedMasterList] = useState([]); // master medication list
   const [userMeds, setUserMeds] = useState([]);           // user's medications
@@ -101,6 +114,24 @@ function Dashboard() {
     setMedPrices(data.medications);
     setMedPricesLoaded(true);  // mark as loaded
   };
+
+  //added nov 2
+  useEffect(() => {
+    const fetchInsurancePlans = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/insurance_plans");
+        const data = await res.json();
+        setInsuranceCompanies(data || []);
+      } catch (err) {
+        console.error("Error fetching insurance plans:", err);
+      }
+    };
+  
+    fetchInsurancePlans();
+  }, []);
+  
+  
+
   
 
   return (
@@ -154,7 +185,44 @@ function Dashboard() {
 
         {/* Main content */}
         <main className="dashboard-main">
-          {activeTab === "insurance" && <h2>Insurance Plans</h2>}
+          {/*added nov 2*/}
+          {/* --- Insurance Plans --- */}
+          {activeTab === "insurance" && (
+  <div className="insurance-plans">
+    <h2>Insurance Plans</h2>
+    {!insuranceCompanies.length ? (
+      <p>Loading insurance plans...</p>
+    ) : (
+      <div className="plan-container">
+        {insuranceCompanies.map((plan, index) => (
+          <div className="plan-card" key={index}>
+            <div className="plan-logo">
+              <img
+                src={process.env.PUBLIC_URL + getLogo(plan["Insurance Company"])}
+                alt={plan["Insurance Company"]}
+              />
+            </div>
+            <div className="plan-info">
+              <h3 className="plan-title">{plan["Plan"]}</h3>
+              <p className="price">{plan["Est. Monthly Premiums"]} per month</p>
+              <ul className="plan-details">
+                <li><strong>Company:</strong> {plan["Insurance Company"]}</li>
+                <li><strong>Coverage Category:</strong> {plan["Coverage Category"]}</li>
+                <li><strong>Coinsurance:</strong> {plan["Coinsurance"]}</li>
+                <li><strong>Out-of-Pocket Max:</strong> {plan["Out-of-Pocket Max"]}</li>
+                <li><strong>Max Benefit:</strong> {plan["Max Benefit"]}</li>
+                <li><strong>Prescription Coverage:</strong> {plan["Prescription Coverage"]}</li>
+              </ul>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+)}
+
+ 
+
 	  {activeTab === "med_prices" && (
 	    <div>
 	      <h2>Medication Price Comparison</h2>

@@ -8,6 +8,10 @@ function Dashboard() {
     return localStorage.getItem('hp_username') || '';
   });
   const [activeTab, setActiveTab] = useState("medications");
+  // === Income slider states ===
+  const [income, setIncome] = useState(0); // user-selected income (0 = show all)
+  const [maxIncome] = useState(79000);    // upper bound for slider
+
 
   const handleSignOut = () => {
     localStorage.removeItem('hp_username'); // clear stored username
@@ -73,13 +77,13 @@ function Dashboard() {
     };
     fetchMeds();
   }, [username]);
-  
+
   const handleAddMedication = async (med) => {
     // Optimistically update UI
     if (!userMeds.includes(med)) {
       setUserMeds((prev) => [...prev, med]);
     }
-  
+
     try {
       await fetch("http://localhost:5001/add_medication", {
         method: "POST",
@@ -90,11 +94,11 @@ function Dashboard() {
       console.error("Error adding medication:", err);
     }
   };
-  
+
   const handleRemoveMedication = async (med) => {
     // Optimistically update UI
     setUserMeds(prev => prev.filter(m => m !== med));
-  
+
     try {
       await fetch("http://localhost:5001/remove_medication", {
         method: "POST",
@@ -105,7 +109,7 @@ function Dashboard() {
       console.error("Error removing medication:", err);
     }
   };
-  
+
   const fetchMedPrices = async () => {
     const res = await fetch("/compare_medications", {
       method: "POST",
@@ -128,10 +132,10 @@ function Dashboard() {
         console.error("Error fetching insurance plans:", err);
       }
     };
-  
+
     fetchInsurancePlans();
   }, []);
-  
+
   useEffect(() => {
     const fetchUserInsurance = async () => {
       try {
@@ -143,15 +147,15 @@ function Dashboard() {
         setUserInsurance("Not selected");
       }
     };
-  
+
     if (username) {
       fetchUserInsurance();
     }
   }, [username]);
-  
-  
 
-  
+
+
+
 
   return (
     <div className="dashboard-container">
@@ -187,11 +191,11 @@ function Dashboard() {
             <li
               className={activeTab === "med_prices" ? "active" : ""}
               onClick={() => {
-		fetchMedPrices();
-		setActiveTab("med_prices");
-	      }}
+                fetchMedPrices();
+                setActiveTab("med_prices");
+              }}
             >
-	      Medication Price Comparison
+              Medication Price Comparison
             </li>
             <li
               className={activeTab === "profile" ? "active" : ""}
@@ -207,166 +211,222 @@ function Dashboard() {
           {/*added nov 2*/}
           {/* --- Insurance Plans --- */}
           {activeTab === "insurance" && (
-  <div className="insurance-plans">
-    <h2>Insurance Plans</h2>
-    {!insuranceCompanies.length ? (
-      <p>Loading insurance plans...</p>
-    ) : (
-      <div className="plan-container">
-        {insuranceCompanies.map((plan, index) => (
-          <div className="plan-card" key={index}>
-            <div className="plan-logo">
-              <img
-                src={process.env.PUBLIC_URL + getLogo(plan["Insurance Company"])}
-                alt={plan["Insurance Company"]}
-              />
-            </div>
-            <div className="plan-info">
-              <h3 className="plan-title">{plan["Plan"]}</h3>
-              <p className="price">{plan["Est. Monthly Premiums"]} per month</p>
-              <ul className="plan-details">
-                <li><strong>Company:</strong> {plan["Insurance Company"]}</li>
-                <li><strong>Coverage Category:</strong> {plan["Coverage Category"]}</li>
-                <li><strong>Coinsurance:</strong> {plan["Coinsurance"]}</li>
-                <li><strong>Out-of-Pocket Max:</strong> {plan["Out-of-Pocket Max"]}</li>
-                <li><strong>Max Benefit:</strong> {plan["Max Benefit"]}</li>
-                <li><strong>Prescription Coverage:</strong> {plan["Prescription Coverage"]}</li>
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-)}
-
- 
-
-{activeTab === "med_prices" && (
-  <div className="med-price-tab">
-    <h2>Medication Price Comparison</h2>
-    {medPrices.length === 0 ? (
-      <p>No Medications</p>
-    ) : (
-      <table className="med-price-table">
-        <thead>
-          <tr>
-            <th>Medication</th>
-            <th>Out of Pocket</th>
-            {Object.keys(medPrices[0].insuranceRates).map((company) => (
-              <th key={company}>{company}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {medPrices.map((med) => (
-            <tr key={med.name}>
-              <td>{med.name}</td>
-              <td>${med.outOfPocket.toFixed(2)}</td>
-              {Object.values(med.insuranceRates).map((rate, idx) => (
-                <td key={idx}>${rate.toFixed(2)}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )}
-  </div>
-)}
-
-          {activeTab === "profile" && (
-          <div className="profile-tab">
-            <h2>My Profile</h2>
-            <div className="profile-card">
-              <p><strong>Name:</strong> {username}</p>
-
-              <div>
-                <strong>Current Medications:</strong>
-                {userMeds.length === 0 ? (
-                  <p>No medications added</p>
-                ) : (
-                  <ul>
-                    {userMeds.map((med, index) => (
-                      <li key={index}>{med}</li>
-                    ))}
-                  </ul>
-                )}
+            <div className="insurance-plans">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2>Insurance Plans</h2>
+                {/*added nov 7*/}
+                {/* Income slider (top-right corner) */}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <label htmlFor="incomeRange"><strong>Income:</strong></label>
+                  <input
+                    id="incomeRange"
+                    type="range"
+                    min="0"
+                    max={maxIncome}
+                    step="1000"
+                    value={income}
+                    onChange={(e) => setIncome(Number(e.target.value))}
+                    style={{ width: "200px" }}
+                  />
+                  <span>${income.toLocaleString()}</span>
+                </div>
               </div>
 
-              <p><strong>Current Insurance Plan:</strong> {userInsurance || "Not selected"}</p>
+              {!insuranceCompanies.length ? (
+                <p>Loading insurance plans...</p>
+              ) : (
+                <div className="plan-container">
+                  {insuranceCompanies
+                    .filter((plan) => {
+                      // Before touching slider: show everything
+                      if (income === 0) return true;
+
+                      // Parse numeric premium values
+                      const premiumText = plan["Est. Monthly Premiums"] || "0";
+                      const numbers = premiumText.match(/\d+(\.\d+)?/g)?.map(Number) || [0];
+                      const avgPremium = numbers.reduce((a, b) => a + b, 0) / numbers.length;
+
+                      // Compute monthly income
+                      const monthlyIncome = income / 12;
+
+                      // Percentage bands to define "qualifying range"
+                      // Low income = 0–4% of monthly income
+                      // Mid income = 4–7%
+                      // High income = 7–10%
+                      // These bands control which premium range each user sees.
+                      let lowerBound = 0;
+                      let upperBound = 0;
+
+                      if (income < 40000) {             // Low income
+                        lowerBound = 0;
+                        upperBound = monthlyIncome * 0.04;
+                      } else if (income < 80000) {      // Middle income
+                        lowerBound = monthlyIncome * 0.04;
+                        upperBound = monthlyIncome * 0.07;
+                      } else {                          // High income
+                        lowerBound = monthlyIncome * 0.07;
+                        upperBound = monthlyIncome * 0.12; // up to 12% of monthly income
+                      }
+
+                      // Show plan if its avg premium falls inside user's band
+                      return avgPremium >= lowerBound && avgPremium <= upperBound;
+                    })
+
+                    .map((plan, index) => (
+                      <div className="plan-card" key={index}>
+                        <div className="plan-logo">
+                          <img
+                            src={process.env.PUBLIC_URL + getLogo(plan["Insurance Company"])}
+                            alt={plan["Insurance Company"]}
+                          />
+                        </div>
+                        <div className="plan-info">
+                          <h3 className="plan-title">{plan["Plan"]}</h3>
+                          <p className="price">{plan["Est. Monthly Premiums"]} per month</p>
+                          <ul className="plan-details">
+                            <li><strong>Company:</strong> {plan["Insurance Company"]}</li>
+                            <li><strong>Coverage Category:</strong> {plan["Coverage Category"]}</li>
+                            <li><strong>Coinsurance:</strong> {plan["Coinsurance"]}</li>
+                            <li><strong>Out-of-Pocket Max:</strong> {plan["Out-of-Pocket Max"]}</li>
+                            <li><strong>Max Benefit:</strong> {plan["Max Benefit"]}</li>
+                            <li><strong>Prescription Coverage:</strong> {plan["Prescription Coverage"]}</li>
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )}
+
+
+
+
+          {activeTab === "med_prices" && (
+            <div className="med-price-tab">
+              <h2>Medication Price Comparison</h2>
+              {medPrices.length === 0 ? (
+                <p>No Medications</p>
+              ) : (
+                <table className="med-price-table">
+                  <thead>
+                    <tr>
+                      <th>Medication</th>
+                      <th>Out of Pocket</th>
+                      {Object.keys(medPrices[0].insuranceRates).map((company) => (
+                        <th key={company}>{company}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {medPrices.map((med) => (
+                      <tr key={med.name}>
+                        <td>{med.name}</td>
+                        <td>${med.outOfPocket.toFixed(2)}</td>
+                        {Object.values(med.insuranceRates).map((rate, idx) => (
+                          <td key={idx}>${rate.toFixed(2)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          {activeTab === "profile" && (
+            <div className="profile-tab">
+              <h2>My Profile</h2>
+              <div className="profile-card">
+                <p><strong>Name:</strong> {username}</p>
+
+                <div>
+                  <strong>Current Medications:</strong>
+                  {userMeds.length === 0 ? (
+                    <p>No medications added</p>
+                  ) : (
+                    <ul>
+                      {userMeds.map((med, index) => (
+                        <li key={index}>{med}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <p><strong>Current Insurance Plan:</strong> {userInsurance || "Not selected"}</p>
+              </div>
+            </div>
+          )}
 
           {activeTab === "medications" && (
-  <div>
-    <h2>Add Your Medications</h2>
+            <div>
+              <h2>Add Your Medications</h2>
 
-    {/* --- Search box --- */}
-    <div style={{ marginBottom: "1em" }}>
-      <input
-        type="text"
-        placeholder="Search for a medication..."
-        value={newMed}
-        onChange={(e) => setNewMed(e.target.value)}
-        style={{ width: "250px", padding: "6px" }}
-      />
-    </div>
+              {/* --- Search box --- */}
+              <div style={{ marginBottom: "1em" }}>
+                <input
+                  type="text"
+                  placeholder="Search for a medication..."
+                  value={newMed}
+                  onChange={(e) => setNewMed(e.target.value)}
+                  style={{ width: "250px", padding: "6px" }}
+                />
+              </div>
 
-    {/* --- Search results --- */}
-    {newMed.trim() && (
-      <div>
-        <h4>Search Results:</h4>
-        <ul>
-          {medMasterList
-            .filter((m) =>
-              m.toLowerCase().includes(newMed.trim().toLowerCase())
-            )
-            .map((med, i) => (
-              <li key={i}>
-                {med}{" "}
-                {!userMeds.includes(med) ? (
-                  <button
-                    onClick={() => handleAddMedication(med)}
-                    style={{ marginLeft: "8px" }}
-                  >
-                    Add
-                  </button>
-                ) : (
-                  <span style={{ color: "gray", marginLeft: "8px" }}>
-                    (Already added)
-                  </span>
-                )}
-              </li>
-            ))}
-        </ul>
-      </div>
-    )}
+              {/* --- Search results --- */}
+              {newMed.trim() && (
+                <div>
+                  <h4>Search Results:</h4>
+                  <ul>
+                    {medMasterList
+                      .filter((m) =>
+                        m.toLowerCase().includes(newMed.trim().toLowerCase())
+                      )
+                      .map((med, i) => (
+                        <li key={i}>
+                          {med}{" "}
+                          {!userMeds.includes(med) ? (
+                            <button
+                              onClick={() => handleAddMedication(med)}
+                              style={{ marginLeft: "8px" }}
+                            >
+                              Add
+                            </button>
+                          ) : (
+                            <span style={{ color: "gray", marginLeft: "8px" }}>
+                              (Already added)
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
 
-    {/* --- User’s meds --- */}
-    <h3>Your Medications:</h3>
-    <ul>
-      {userMeds.map((med, i) => (
-        <li key={i}>
-          {med}{" "}
-          <button
-            onClick={() => handleRemoveMedication(med)}
-            style={{
-              marginLeft: "8px",
-              backgroundColor: "#ff4d4d",
-              color: "white",
-              border: "none",
-              padding: "2px 6px",
-              borderRadius: "4px",
-            }}
-          >
-            Remove
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+              {/* --- User’s meds --- */}
+              <h3>Your Medications:</h3>
+              <ul>
+                {userMeds.map((med, i) => (
+                  <li key={i}>
+                    {med}{" "}
+                    <button
+                      onClick={() => handleRemoveMedication(med)}
+                      style={{
+                        marginLeft: "8px",
+                        backgroundColor: "#ff4d4d",
+                        color: "white",
+                        border: "none",
+                        padding: "2px 6px",
+                        borderRadius: "4px",
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
 
 

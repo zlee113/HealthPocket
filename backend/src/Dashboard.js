@@ -8,7 +8,7 @@ function Dashboard() {
     return localStorage.getItem('hp_username') || '';
   });
   const [activeTab, setActiveTab] = useState("medications");
-  // === Income slider states ===
+  // Income slider states
   const [income, setIncome] = useState(0); // user-selected income (0 = show all)
   const [maxIncome] = useState(79000);    // upper bound for slider
 
@@ -171,9 +171,9 @@ function Dashboard() {
       </header>
 
 
-      {/* Sidebar + main content */}
+      {/*Sidebar + main content*/}
       <div className="dashboard-body">
-        {/* Sidebar */}
+        {/*Sidebar*/}
         <nav className="dashboard-sidebar">
           <ul>
             <li
@@ -206,16 +206,16 @@ function Dashboard() {
           </ul>
         </nav>
 
-        {/* Main content */}
+        {/*Main content*/}
         <main className="dashboard-main">
           {/*added nov 2*/}
-          {/* --- Insurance Plans --- */}
+          {/*Insurance Plans*/}
           {activeTab === "insurance" && (
             <div className="insurance-plans">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2>Insurance Plans</h2>
                 {/*added nov 7*/}
-                {/* Income slider (top-right corner) */}
+                {/*Income slider (top-right corner)*/}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   <label htmlFor="incomeRange"><strong>Income:</strong></label>
                   <input
@@ -289,7 +289,38 @@ function Dashboard() {
                             <li><strong>Coinsurance:</strong> {plan["Coinsurance"]}</li>
                             <li><strong>Out-of-Pocket Max:</strong> {plan["Out-of-Pocket Max"]}</li>
                             <li><strong>Max Benefit:</strong> {plan["Max Benefit"]}</li>
-                            <li><strong>Prescription Coverage:</strong> {plan["Prescription Coverage"]}</li>
+
+                            {/*Drug Coverage*/}
+                            {/*added nov 16*/} 
+                            <li><strong>Prescription Coverage:</strong></li>
+                            {[
+                              "Generic Drugs (Tier 1)",
+                              "Preferred Brand Drugs (Tier 2)",
+                              "Non-Preferred Brand Drugs (Tier 3)",
+                              "Specialty Drugs (Tier 4)"
+                            ].map((key, idx) => {
+                              const value = plan[key];
+
+                              let displayValue;
+                              if (value.toLowerCase() === "no") {
+                                displayValue = "Not covered";
+                              } else if (value === "0") {
+                                displayValue = "No charge";
+                              } else {
+                                displayValue = value;
+                              }
+
+                              const label = key
+                                .replace("Brand", "")
+                                .replace("Drugs", "")
+                                .trim();
+
+                              return (
+                                <li key={idx} style={{ marginLeft: "1rem" }}>
+                                  <strong>{label}:</strong> {displayValue}
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                       </div>
@@ -298,8 +329,6 @@ function Dashboard() {
               )}
             </div>
           )}
-
-
 
 
           {activeTab === "med_prices" && (

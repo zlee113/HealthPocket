@@ -1,96 +1,94 @@
-medication,category,common_in_20_25
-Levothyroxine,Thyroid hormone replacement,yes
-Sertraline,Antidepressant (SSRI),yes
-Escitalopram,Antidepressant (SSRI),yes
-Fluoxetine,Antidepressant (SSRI),yes
-Citalopram,Antidepressant (SSRI),yes
-Bupropion,Antidepressant / Smoking cessation,yes
-Venlafaxine,Antidepressant (SNRI),yes
-Duloxetine,Antidepressant (SNRI),yes
-Trazodone,Antidepressant / Sleep aid,yes
-Mirtazapine,Antidepressant / Sleep aid,yes
-Buspirone,Anxiolytic (non-benzodiazepine),yes
-Alprazolam,Anxiolytic (benzodiazepine),yes
-Lorazepam,Anxiolytic (benzodiazepine),yes
-Clonazepam,Anxiolytic / Seizure,yes
-Lamotrigine,Anticonvulsant / Mood stabilizer,yes
-Topiramate,Anticonvulsant / Migraine prevention,yes
-Gabapentin,Nerve pain / Seizure,yes
-Hydroxyzine,Anxiolytic / Allergy,yes
-Drospirenone-ethinyl estradiol,Oral contraceptive,yes
-Levonorgestrel-ethinyl estradiol,Oral contraceptive,yes
-Norgestimate-ethinyl estradiol,Oral contraceptive,yes
-Levonorgestrel IUD,Hormonal contraceptive,yes
-Etonogestrel implant,Hormonal contraceptive,yes
-Montelukast,Asthma / Allergy,yes
-Albuterol,Asthma rescue inhaler,yes
-Fluticasone,Nasal steroid / Asthma control,yes
-Budesonide,Asthma / Nasal steroid,yes
-Cetirizine,Antihistamine,yes
-Loratadine,Antihistamine,yes
-Fexofenadine,Antihistamine,yes
-Prednisone,Corticosteroid,no
-Ibuprofen,NSAID (pain/inflammation),yes
-Naproxen,NSAID (pain/inflammation),yes
-Diclofenac,NSAID,no
-Cyclobenzaprine,Muscle relaxant,yes
-Tizanidine,Muscle relaxant,yes
-Methocarbamol,Muscle relaxant,no
-Sumatriptan,Migraine treatment,yes
-Ondansetron,Antiemetic (nausea),yes
-Promethazine,Antiemetic / Allergy,no
-Metformin,Antidiabetic / PCOS,yes
-Spironolactone,Acne / PCOS / Diuretic,yes
-Semaglutide,Diabetes / Weight management,yes
-Liraglutide,Diabetes / Weight management,yes
-Omeprazole,GERD / Acid reflux,yes
-Pantoprazole,GERD / Acid reflux,no
-Sucralfate,Ulcer treatment,no
-Isotretinoin,Severe acne,yes
-Doxycycline,Antibiotic / Acne,yes
-Amoxicillin,Antibiotic,yes
-Azithromycin,Antibiotic,yes
-Clindamycin,Antibiotic / Acne,yes
-Nitrofurantoin,UTI antibiotic,yes
-Trimethoprim-sulfamethoxazole,UTI antibiotic,yes
-Ciprofloxacin,Antibiotic (broad spectrum),no
-Levofloxacin,Antibiotic (broad spectrum),no
-Acyclovir,Antiviral (HSV),yes
-Valacyclovir,Antiviral (HSV),yes
-Oseltamivir,Antiviral (flu),yes
-Fluconazole,Antifungal (yeast infections),yes
-Nystatin,Antifungal,no
-Hydrocodone-acetaminophen,Pain relief (opioid),no
-Tramadol,Pain relief (opioid-like),yes
-Acetaminophen,Pain relief,yes
-Melatonin,Sleep aid,yes
-Zolpidem,Sleep aid,yes
-Eszopiclone,Sleep aid,no
-Methylphenidate,Stimulant (ADHD),yes
-Amphetamine-dextroamphetamine,Stimulant (ADHD),yes
-Lisdexamfetamine,Stimulant (ADHD),yes
-Atomoxetine,Non-stimulant ADHD,yes
-Modafinil,Wakefulness / Narcolepsy,yes
-Risperidone,Antipsychotic / Bipolar,yes
-Aripiprazole,Antipsychotic / Depression adjunct,yes
-Quetiapine,Antipsychotic / Sleep / Bipolar,yes
-Olanzapine,Antipsychotic,no
-Finasteride,Hair loss / Prostate,no
-Minoxidil,Hair loss,yes
-Oxybutynin,Overactive bladder,no
-Tamsulosin,Urinary retention,no
-Allopurinol,Gout,no
-Colchicine,Gout,no
-Hydrochlorothiazide,Blood pressure / Diuretic,no
-Lisinopril,Blood pressure,no
-Amlodipine,Blood pressure,no
-Losartan,Blood pressure,no
-Metoprolol,Blood pressure,no
-Simvastatin,Cholesterol,no
-Atorvastatin,Cholesterol,no
-Rosuvastatin,Cholesterol,no
-Vitamin D (Ergocalciferol),Supplement,yes
-Ferrous sulfate,Iron supplement,yes
-Cyanocobalamin (B12),Supplement,yes
-Folic acid,Supplement / Prenatal,yes
-Biotin,Supplement,yes
+medication,category,common_in_20_25,tier
+Levothyroxine,Thyroid hormone replacement,yes,1
+Sertraline,Antidepressant (SSRI),yes,1
+Escitalopram,Antidepressant (SSRI),yes,1
+Fluoxetine,Antidepressant (SSRI),yes,1
+Citalopram,Antidepressant (SSRI),yes,1
+Bupropion,Antidepressant / Smoking cessation,yes,1
+Venlafaxine,Antidepressant (SNRI),yes,1
+Duloxetine,Antidepressant (SNRI),yes,2
+Trazodone,Antidepressant / Sleep aid,yes,1
+Mirtazapine,Antidepressant / Sleep aid,yes,1
+Buspirone,Anxiolytic (non-benzodiazepine),yes,1
+Alprazolam,Anxiolytic (benzodiazepine),yes,1
+Lorazepam,Anxiolytic (benzodiazepine),yes,1
+Clonazepam,Anxiolytic / Seizure,yes,1
+Lamotrigine,Anticonvulsant / Mood stabilizer,yes,1
+Topiramate,Anticonvulsant / Migraine prevention,yes,1
+Gabapentin,Nerve pain / Seizure,yes,1
+Hydroxyzine,Anxiolytic / Allergy,yes,1
+Drospirenone-ethinyl estradiol,Oral contraceptive,yes,2
+Levonorgestrel-ethinyl estradiol,Oral contraceptive,yes,1
+Norgestimate-ethinyl estradiol,Oral contraceptive,yes,1
+Levonorgestrel IUD,Hormonal contraceptive,yes,4
+Etonogestrel implant,Hormonal contraceptive,yes,4
+Montelukast,Asthma / Allergy,yes,1
+Albuterol,Asthma rescue inhaler,yes,2
+Fluticasone,Nasal steroid / Asthma control,yes,2
+Budesonide,Asthma / Nasal steroid,yes,2
+Prednisone,Corticosteroid,no,1
+Diclofenac,NSAID,no,1
+Cyclobenzaprine,Muscle relaxant,yes,1
+Tizanidine,Muscle relaxant,yes,1
+Methocarbamol,Muscle relaxant,no,1
+Sumatriptan,Migraine treatment,yes,2
+Ondansetron,Antiemetic (nausea),yes,1
+Promethazine,Antiemetic / Allergy,no,1
+Metformin,Antidiabetic / PCOS,yes,1
+Spironolactone,Acne / PCOS / Diuretic,yes,1
+Semaglutide,Diabetes / Weight management,yes,4
+Liraglutide,Diabetes / Weight management,yes,4
+Omeprazole,GERD / Acid reflux,yes,1
+Pantoprazole,GERD / Acid reflux,no,1
+Sucralfate,Ulcer treatment,no,1
+Isotretinoin,Severe acne,yes,3
+Doxycycline,Antibiotic / Acne,yes,1
+Amoxicillin,Antibiotic,yes,1
+Azithromycin,Antibiotic,yes,1
+Clindamycin,Antibiotic / Acne,yes,1
+Nitrofurantoin,UTI antibiotic,yes,1
+Trimethoprim-sulfamethoxazole,UTI antibiotic,yes,1
+Ciprofloxacin,Antibiotic (broad spectrum),no,1
+Levofloxacin,Antibiotic (broad spectrum),no,1
+Acyclovir,Antiviral (HSV),yes,1
+Valacyclovir,Antiviral (HSV),yes,2
+Oseltamivir,Antiviral (flu),yes,2
+Fluconazole,Antifungal (yeast infections),yes,1
+Nystatin,Antifungal,no,1
+Hydrocodone-acetaminophen,Pain relief (opioid),no,2
+Tramadol,Pain relief (opioid-like),yes,1
+Zolpidem,Sleep aid,yes,1
+Eszopiclone,Sleep aid,no,2
+Methylphenidate,Stimulant (ADHD),yes,2
+Amphetamine-dextroamphetamine,Stimulant (ADHD),yes,2
+Lisdexamfetamine,Stimulant (ADHD),yes,3
+Atomoxetine,Non-stimulant ADHD,yes,2
+Modafinil,Wakefulness / Narcolepsy,yes,3
+Risperidone,Antipsychotic / Bipolar,yes,2
+Aripiprazole,Antipsychotic / Depression adjunct,yes,3
+Quetiapine,Antipsychotic / Sleep / Bipolar,yes,2
+Olanzapine,Antipsychotic,no,2
+Finasteride,Hair loss / Prostate,no,2
+Minoxidil,Hair loss,yes,1
+Oxybutynin,Overactive bladder,no,1
+Tamsulosin,Urinary retention,no,1
+Allopurinol,Gout,no,1
+Colchicine,Gout,no,2
+Hydrochlorothiazide,Blood pressure / Diuretic,no,1
+Lisinopril,Blood pressure,no,1
+Amlodipine,Blood pressure,no,1
+Losartan,Blood pressure,no,1
+Metoprolol,Blood pressure,no,1
+Simvastatin,Cholesterol,no,1
+Atorvastatin,Cholesterol,no,1
+Rosuvastatin,Cholesterol,no,2
+Norethindrone-ethinyl estradiol,Oral contraceptive,yes,1
+Propranolol,Beta blocker / Migraine,yes,1
+Guanfacine,Non-stimulant ADHD,yes,2
+Clonidine,Hypertension / ADHD adjunct,no,1
+Metronidazole,Antibiotic / Antiprotozoal,yes,1
+Clomiphene,Fertility treatment,no,3
+Hydroxychloroquine,Autoimmune / Antimalarial,no,1
+Baclofen,Muscle relaxant,no,1
+Dapagliflozin,Antidiabetic (SGLT2 inhibitor),no,3
+Apixaban,Anticoagulant,no,3

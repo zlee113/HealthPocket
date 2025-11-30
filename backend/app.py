@@ -4,10 +4,99 @@ from flask_cors import CORS
 import csv
 import os
 import pandas as pd
+import re
 
 app = Flask(__name__)
-# Allow requests from the frontend during development
 CORS(app)
+
+def compute_recommendations_for_user(username):
+    #pull users medications
+    with open("user_meds.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        user_meds = [row["medication"] for row in reader if row["username"] == username]
+
+    if not user_meds:
+        return []
+
+    med_prices, med_tiers = load_med_data()
+    df = pd.read_csv("InsuranceDB.csv")
+    plan_costs = []
+
+    for _, row in df.iterrows():
+        plan_id = f"{row['Insurance Company']} — {row['Plan']}"
+        med_total_cost = 0
+
+        for med in user_meds:
+            retail = med_prices.get(med, 50)
+            tier = med_tiers.get(med, 1)
+
+            if tier == 1:
+                col = "Generic Drugs (Tier 1)"
+            elif tier == 2:
+                col = "Preferred Brand Drugs (Tier 2)"
+            elif tier == 3:
+                col = "Non-Preferred Brand Drugs (Tier 3)"
+            else:
+                col = "Specialty Drugs (Tier 4)"
+
+            val = str(row[col]).strip()
+
+            if val.lower() == "no":
+                insurance_cost = retail
+            elif "%" in val:
+                pct = float(val.replace("%", "")) / 100
+                insurance_cost = pct * retail
+            elif "$" in val:
+                insurance_cost = float(val.replace("$", "").replace(",", ""))
+            else:
+                insurance_cost = retail
+
+            med_total_cost += insurance_cost
+
+        pm = str(row["Est. Monthly Premiums"])
+        numbers = re.findall(r"\d+\.?\d*", pm)
+        premium = sum(map(float, numbers)) / len(numbers) if numbers else 0
+
+        plan_costs.append({
+            "plan": plan_id,
+            "med_cost": med_total_cost,
+            "premium": premium,
+            "total_monthly": med_total_cost + premium,
+            "total_yearly": (med_total_cost + premium) * 12
+        })
+
+    plan_costs.sort(key=lambda x: x["total_monthly"])
+    return plan_costs[:3]
+
+def load_med_prices():
+    prices = {}
+    with open("med_master.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            med = row["medication"]
+            try:
+                price = float(row["out_of_pocket"])
+            except:
+                #try this here just incase
+                price = 20
+            prices[med] = price
+    return prices
+
+def load_med_data():
+    med_price = {}
+    med_tier = {}
+    with open("med_master.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            med = row["medication"]
+            med_tier[med] = int(row["tier"])
+            try:
+                med_price[med] = float(row["out_of_pocket"])
+            except:
+                med_price[med] = 50
+    return med_price, med_tier
+
+
 
 
 def read_users_csv(csv_path):
@@ -77,36 +166,32 @@ def dashboard():
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
     if request.method == "POST":
-        # Get the username and password from the account creation
         new_username = request.form.get("username")
         new_password = request.form.get("password")
 
-        # Write the username and password to a csv
-        # TODO: Update with actual user and password requirements,
-        # and change csv to be an actual database
-
-        #need to init accounts.csv
         if not os.path.exists("users.csv"):
             with open("users.csv", "w", newline="") as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(["username","password"])    #header row check
-        
+                writer.writerow(["username","password"])
+
         with open("users.csv", "r", newline="") as csvfile:
             reader = csv.reader(csvfile)
-            next(reader,None) #skip header check
+            next(reader,None)
             for row in reader:
                 if (row[0] == new_username):
-                    if len(row)>0 and row[0] == new_username:
-                        flash("Username already exists")
-                        return redirect(url_for("create_account"))
+                    flash("Username already exists")
+                    return redirect(url_for("create_account"))
 
-        with open("users.csv", "a", newline="") as csvfile:
+        with open("users.csv", "a", newline="", encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([new_username, new_password])
-        return redirect(url_for("dashboard"))
+
+        #redirect to lgoin
+        return redirect("http://localhost:3000/#/login")
 
     return render_template("create_account.html")
-#30
+
+#oct 30
 @app.route("/medications")
 def medications():
     username = request.args.get("user", "")
@@ -173,20 +258,6 @@ def remove_medication():
         writer.writeheader()
         writer.writerows(updated_rows)
 
-    # Step 2 (optional): If no user has this med anymore, remove from master
-    '''
-    meds_still_used = {row["medication"] for row in updated_rows}
-
-    with open("med_master.csv", newline="", encoding="utf-8") as f:
-        master_rows = list(csv.DictReader(f))
-
-    master_filtered = [row for row in master_rows if row["medication"] in meds_still_used]
-
-    with open("med_master.csv", "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["medication"])
-        writer.writeheader()
-        writer.writerows(master_filtered)
-    '''
     return jsonify({"ok": True})
 
 @app.route("/compare_medications", methods=["POST"])
@@ -194,66 +265,113 @@ def compare_medication():
     data = request.get_json()
     username = data.get("username")
 
-    # Grab the medication for the following user
-    with open("user_meds.csv", "r") as user_meds_csv:
-        reader = csv.DictReader(user_meds_csv)
+    # load user meds
+    with open("user_meds.csv", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
         user_meds = [row["medication"] for row in reader if row["username"] == username]
 
-    # Now grab the prices of these Meds
-    med_prices = {}
-    with open("popular_medicine_list.csv", "r") as med_prices_csv:
-        reader = csv.DictReader(med_prices_csv)
-        for row in reader:
-            med = row["Name"]
-            price = float(row["Price"])
-            print("PRICE: " + str(price))
-            med_prices[med] = price
-    print(med_prices)
+    # load med prices & tiers
+    med_prices, med_tiers = load_med_data()
 
-    # Get the insurance rates for prescriptions
-    insurance_rates = {}
-    with open("fake_insurance_database.csv", "r") as med_prices_csv:
-        reader = csv.DictReader(med_prices_csv)
-        print("CSV headers:", reader.fieldnames)  # <-- check exact names
-        for row in reader:
-            print(row["Company"],row["rate"])
-            insurance_rates[row["Company"]] = float(row["rate"])
+    # recommended plans
+    recs = compute_recommendations_for_user(username)
+    top3_names = [p["plan"] for p in recs]
 
-    # Combine into one json
+
+    df = pd.read_csv("InsuranceDB.csv")
+    insurance_lookup = {}
+    for _, row in df.iterrows():
+        insurance_lookup[f"{row['Insurance Company']} — {row['Plan']}"] = row
+
     result = []
-    for med in user_meds:
-        price = med_prices.get(med, 0)
-        rates = {company: round(price * (1 - discount), 2)
-                 for company, discount in insurance_rates.items()}
-        result.append({
-            "name": med,
-            "outOfPocket": price,
-            "insuranceRates": rates
-        })
 
-    print(result)
-    return jsonify({"medications": result})
+    for med in user_meds:
+        retail = med_prices.get(med, 50)
+        tier = med_tiers.get(med, 1)
+
+        entry = {
+            "name": med,
+            "tier": tier,
+            "retail": retail,
+            "insuranceRates": {},
+            "best": None,
+            "best_value": None
+        }
+
+        bestCost = retail
+        bestMethod = "retail"
+
+        for plan in top3_names:
+            row = insurance_lookup.get(plan)
+
+            if tier == 1:
+                col = "Generic Drugs (Tier 1)"
+            elif tier == 2:
+                col = "Preferred Brand Drugs (Tier 2)"
+            elif tier == 3:
+                col = "Non-Preferred Brand Drugs (Tier 3)"
+            else:
+                col = "Specialty Drugs (Tier 4)"
+
+            val = str(row[col]).strip()
+
+            if val.lower() == "no":
+                insurance_cost = retail
+            elif "%" in val:
+                pct = float(val.replace("%", "")) / 100
+                insurance_cost = pct * retail
+            elif "$" in val:
+                insurance_cost = float(val.replace("$", "").replace(",", ""))
+            else:
+                insurance_cost = retail
+
+            entry["insuranceRates"][plan] = insurance_cost
+
+            if insurance_cost < bestCost:
+                bestCost = insurance_cost
+                bestMethod = plan
+
+        entry["best"] = bestMethod
+        entry["best_value"] = bestCost
+        result.append(entry)
+
+    return jsonify({
+        "medications": result,
+        "plans": top3_names
+    })
+
 
 #added nov 2
 @app.route("/insurance_plans", methods=["GET"])
 def get_insurance_plans():
     try:
-        # Adjust this path if needed (depends on where your backend runs)
         csv_path = os.path.join(os.path.dirname(__file__), "InsuranceDB.csv")
         print("reading csv from:", csv_path)
 
-        # Load the CSV
+        # loaf csv
         df = pd.read_csv(csv_path)
         
-        # Convert to list of dictionaries
         plans = df.fillna("").to_dict(orient="records")
 
-        
-        # Return JSON response
         return jsonify(plans)
     except Exception as e:
         print("Error loading insurance plans:", e)
         return jsonify({"error": str(e)}), 500
+    
+#added nov 26 sprint 3
+@app.route("/recommend_insurance", methods=["POST"])
+def recommend_insurance():
+    data = request.get_json()
+    username = data.get("username")
+    #put in function to trouble shoot
+    recs = compute_recommendations_for_user(username)
+
+    return jsonify({
+        "ok": True,
+        "recommendations": recs
+    })
+
+
 
 
 if __name__ == '__main__':

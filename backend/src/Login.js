@@ -1,7 +1,6 @@
 //login.js
 import { useState } from 'react';
 import './Login.css';
-import { useNavigate } from "react-router-dom";
 
 // Renders the small gradient "HP" logo used in the sign-in header
 

@@ -1,7 +1,7 @@
 //dashboard.js
 
 import { useState, useEffect } from "react";
-import "./Dashboard.css"; // create a CSS file for styling
+import "./Dashboard.css"; 
 
 function Dashboard() {
   const [username, setUsername] = useState(() => {
@@ -28,7 +28,7 @@ function Dashboard() {
     if (name.includes("sentara")) return "/logos/sentara.svg";
     if (name.includes("anthem")) return "/logos/anthem.svg";
 
-    return "/logos/default.svg"; // fallback
+    return "/logos/default.svg"; // just inscase
   };
 
   //added 30
@@ -39,6 +39,14 @@ function Dashboard() {
   const [insuranceCompanies, setInsuranceCompanies] = useState([]);	  // different insurance companies
   const [medPricesLoaded, setMedPricesLoaded] = useState(false);	  // Prices load when tab
   const [userInsurance, setUserInsurance] = useState(""); // store current insurance plan
+
+  //added nov 26
+  const [recommendedPlans, setRecommendedPlans] = useState([]); //for new sidebar
+  const [recommendedLoaded, setRecommendedLoaded] = useState(false);  //for new sidebar
+  const formatPrice = (price) => {
+    return typeof price === "number" ? `$${price.toFixed(2)}` : "-";
+  };  
+
 
   //
   useEffect(() => {
@@ -79,7 +87,7 @@ function Dashboard() {
   }, [username]);
 
   const handleAddMedication = async (med) => {
-    // Optimistically update UI
+    //update 
     if (!userMeds.includes(med)) {
       setUserMeds((prev) => [...prev, med]);
     }
@@ -96,7 +104,7 @@ function Dashboard() {
   };
 
   const handleRemoveMedication = async (med) => {
-    // Optimistically update UI
+    //update
     setUserMeds(prev => prev.filter(m => m !== med));
 
     try {
@@ -153,6 +161,79 @@ function Dashboard() {
     }
   }, [username]);
 
+  //added nov 26 for new dashboard tab
+  const fetchRecommendedPlans = async () => {
+    setRecommendedLoaded(false);
+    try {
+      const res = await fetch("http://localhost:5001/recommend_insurance", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({username})
+      });
+      const data = await res.json();
+  
+      if (data && data.recommendations) {
+        setRecommendedPlans(data.recommendations);
+      } else {
+        setRecommendedPlans([]);
+      }
+    } catch (err) {
+      console.error("Error fetching recommended plans:", err);
+      setRecommendedPlans([]);
+    }
+    setRecommendedLoaded(true);
+  };
+  
+
+
+  useEffect(() => {
+    if (recommendedPlans.length === 0 && username) {
+      fetchRecommendedPlans();
+    }
+  }, [username]);  
+  
+  //refresh on edit medications
+  useEffect(() => {
+    if (activeTab === "profile" && username) {
+      fetchRecommendedPlans();
+    }
+  }, [userMeds]);
+  //refresh on edit meds
+  useEffect(() => {
+    if (username && medPricesLoaded) {
+      fetchMedPrices();
+    }
+  }, [userMeds]);
+  
+    // Total cost per column
+  // Total cost per column (use the *displayed* price in each column)
+let totalColumnCost = {
+  retail: 0,
+};
+
+recommendedPlans.forEach((plan) => {
+  totalColumnCost[plan.plan] = 0;
+});
+
+medPrices.forEach((med) => {
+  // retail total
+  totalColumnCost["retail"] += med.retail;
+
+  // each plan total uses its own insurance price
+  recommendedPlans.forEach((plan) => {
+    const planName = plan.plan;
+    const price = med.insuranceRates[planName];
+
+    if (typeof price === "number" && !Number.isNaN(price)) {
+      totalColumnCost[planName] += price;
+    }
+  });
+});
+
+// select lowest total-cost column
+let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
+  totalColumnCost[a] <= totalColumnCost[b] ? a : b
+);
 
 
 
@@ -189,6 +270,16 @@ function Dashboard() {
               Insurance Plans
             </li>
             <li
+              className={activeTab === "recommended" ? "active" : ""}
+              onClick={() => {
+                fetchRecommendedPlans();
+                setActiveTab("recommended");
+              }}
+            >
+              Recommended Plans
+            </li>
+            {/*added nov 26 sprint 3 */}
+            <li
               className={activeTab === "med_prices" ? "active" : ""}
               onClick={() => {
                 fetchMedPrices();
@@ -197,6 +288,7 @@ function Dashboard() {
             >
               Medication Price Comparison
             </li>
+
             <li
               className={activeTab === "profile" ? "active" : ""}
               onClick={() => setActiveTab("profile")}
@@ -338,35 +430,130 @@ function Dashboard() {
                 <p>No Medications</p>
               ) : (
                 <table className="med-price-table">
-                  <thead>
-                    <tr>
-                      <th>Medication</th>
-                      <th>Out of Pocket</th>
-                      {Object.keys(medPrices[0].insuranceRates).map((company) => (
-                        <th key={company}>{company}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {medPrices.map((med) => (
+                <thead>
+                  <tr>
+                    <th>Medication</th>
+
+                    <th className={bestOverallColumn === "retail" ? "best-header-col" : ""}>
+                      Out of Pocket
+                      {bestOverallColumn === "retail" && (
+                        <span className="best-header-tag">BEST OVERALL</span>
+                      )}
+                    </th>
+
+                    {recommendedPlans.map((plan, i) => {
+                      const planName = plan.plan;
+                      return (
+                        <th key={i} className={
+                          bestOverallColumn === planName ? "best-header-col" : ""
+                        }>
+                          {planName}
+                          {bestOverallColumn === planName && (
+                            <span className="best-header-tag">BEST OVERALL</span>
+                          )}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {medPrices.map((med) => {
+                    return (
                       <tr key={med.name}>
-                        <td>{med.name}</td>
-                        <td>${med.outOfPocket.toFixed(2)}</td>
-                        {Object.values(med.insuranceRates).map((rate, idx) => (
-                          <td key={idx}>${rate.toFixed(2)}</td>
-                        ))}
+                        <td className="med-name">{med.name}</td>
+
+                        {/* retail */}
+                        <td className={med.best === "retail" ? "best-individual" : ""}>
+                          {formatPrice(med.retail)}
+                        </td>
+
+                        {recommendedPlans.map((plan, idx) => {
+                          const planName = plan.plan;
+                          const price = med.insuranceRates[planName];
+
+                          return (
+                            <td key={idx}
+                                className={med.best === planName ? "best-individual" : ""}>
+                              {formatPrice(price)}
+                            </td>
+                          );
+                        })}
                       </tr>
-                    ))}
+                    );
+                  })}
+                  <tr className="total-row">
+                    <td><strong>Total</strong></td>
+
+                    <td className={bestOverallColumn === "retail" ? "best-total" : ""}>
+                      {formatPrice(totalColumnCost["retail"])}
+                    </td>
+
+                    {recommendedPlans.map((plan, idx) => {
+                      const planName = plan.plan;
+                      return (
+                        <td key={idx} className={bestOverallColumn === planName ? "best-total" : ""}>
+                          {formatPrice(totalColumnCost[planName])}
+                        </td>
+                      );
+                    })}
+                  </tr>
                   </tbody>
+
                 </table>
               )}
             </div>
           )}
 
+
+          {/*Added nov 26 for new tab*/}
+          {activeTab === "recommended" && (
+            <div className="recommended-tab">
+              <h2>Top Recommended Insurance Plans</h2>
+              {!recommendedLoaded ? (
+                <p>Loading...</p>
+              ) : recommendedPlans.length === 0 ? (
+                <p>No recommended plans — add medications first.</p>
+              ) : (
+                <table className="recommended-nice-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Plan</th>
+                      <th>Medication Cost</th>
+                      <th>Monthly Premium</th>
+                      <th>Total Monthly Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recommendedPlans.map((planObj, idx) => (
+                      <tr key={idx}
+                          className={idx === 0 ? "best-row" : ""}
+                      >
+                        <td>{idx + 1}</td>
+                        <td className="plan-name">{planObj.plan}</td>
+                        <td>{formatPrice(planObj.med_cost)}</td>
+                        <td>{formatPrice(planObj.premium)}</td>
+                        <td className={idx === 0 ? "best-total-cell" : ""}>
+                          {formatPrice(planObj.total_monthly)}
+                          {idx === 0 && <span className="best-badge">BEST DEAL</span>}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+              )}
+            </div>
+          )}
+
+
+
+
           {activeTab === "profile" && (
             <div className="profile-tab">
               <h2>My Profile</h2>
               <div className="profile-card">
+                
                 <p><strong>Name:</strong> {username}</p>
 
                 <div>
@@ -382,10 +569,30 @@ function Dashboard() {
                   )}
                 </div>
 
-                <p><strong>Current Insurance Plan:</strong> {userInsurance || "Not selected"}</p>
+                {/* NEW SECTION */}
+                {recommendedPlans.length > 0 ? (
+                  <div className="recommended-profile-block">
+                    <h3>Recommended Insurance Plan</h3>
+
+                    <p>
+                      <strong>Best Plan:</strong> 
+                      <span className="best-plan-name"> {recommendedPlans[0].plan}</span>
+                    </p>
+
+                    <p><strong>Total Monthly Cost:</strong> {formatPrice(recommendedPlans[0].total_monthly)}</p>
+
+                    <p><strong>Monthly Premium:</strong> {formatPrice(recommendedPlans[0].premium)}</p>
+
+                    <p><strong>Medication Cost:</strong> {formatPrice(recommendedPlans[0].med_cost)}</p>
+                  </div>
+                ) : (
+                  <p><strong>Recommended Plan:</strong> Add your medications to generate a recommendation</p>
+                )}
+
               </div>
             </div>
           )}
+
 
           {activeTab === "medications" && (
             <div>

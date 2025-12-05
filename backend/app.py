@@ -368,7 +368,7 @@ def compare_medication():
     })
 
 
-#sprint 2, yongjoon
+#sprint 2, youngjoon
 @app.route("/insurance_plans", methods=["GET"])
 def get_insurance_plans():
     try:

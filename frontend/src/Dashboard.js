@@ -18,7 +18,7 @@ function Dashboard() {
   //which tab is active on side bar, start at edit meds
   const [activeTab, setActiveTab] = useState("medications");
   
-  // sprint 3, yongjoon
+  // sprint 3, youngjoon
   //Income slider states
   const [income, setIncome] = useState(0); // user-selected income (0 = show all)
   const [maxIncome] = useState(79000);    // upper bound for slider
@@ -31,7 +31,7 @@ function Dashboard() {
 
   };
 
-  //sprint 2,yongjoon
+  //sprint 2,youngjoon
   //logo for insurance companies
   const getLogo = (company) => {
     if (!company) return "/logos/default.svg";
@@ -54,7 +54,7 @@ function Dashboard() {
   const [insuranceCompanies, setInsuranceCompanies] = useState([]);	  // insuranceDB
   const [medPricesLoaded, setMedPricesLoaded] = useState(false);	  // Prices load when tab
   
-  //sprint3, brianna
+  //sprint3, tanish
   //recommendation
   const [recommendedPlans, setRecommendedPlans] = useState([]); //for new sidebar
   const [recommendedLoaded, setRecommendedLoaded] = useState(false);  //for new sidebar
@@ -142,7 +142,7 @@ function Dashboard() {
     }
   };
 
-  //sprint 3, brianna
+  //sprint 3, tanish
   //price comparison
   const fetchMedPrices = async () => {
     const res = await fetch("/compare_medications", {
@@ -155,7 +155,7 @@ function Dashboard() {
     setMedPricesLoaded(true);  // mark as loaded
   };
 
-  //sprint2, yongjoon
+  //sprint2, youngjoon
   //insurance plans
   useEffect(() => {
     const fetchInsurancePlans = async () => {
@@ -172,7 +172,7 @@ function Dashboard() {
   }, []);
 
 
-  //sprint3, brianna
+  //sprint3, tanish
   //recommended 3 plans from server
   const fetchRecommendedPlans = async () => {
     setRecommendedLoaded(false);
@@ -196,7 +196,7 @@ function Dashboard() {
     setRecommendedLoaded(true);
   };
   
-  //sprint3, brianna
+  //sprint3, tanish
   //load this when dashboard loads
   useEffect(() => {
     if (recommendedPlans.length === 0 && username) {
@@ -261,7 +261,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
         </div>
       </header>
 
-
+      {/* Sprint 3, Youngjoon*/}
       {/*Sidebar + main content*/}
       <div className="dashboard-body">
         {/*Sidebar*/}
@@ -288,7 +288,6 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
             >
               Recommended Plans
             </li>
-            {/*added nov 26 sprint 3 */}
             <li
               className={activeTab === "med_prices" ? "active" : ""}
               onClick={() => {
@@ -310,7 +309,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
 
         {/*Main content*/}
         <main className="dashboard-main">
-          {/*added nov 2*/}
+          {/*sprint 2, youngjoon*/}
           {/*Insurance Plans*/}
           {activeTab === "insurance" && (
             <div className="insurance-plans">
@@ -432,7 +431,8 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
             </div>
           )}
 
-
+          {/* sprint 2, zach */}
+          {/* sprint 3,ishani */}
           {activeTab === "med_prices" && (
             <div className="med-price-tab">
               <h2>Medication Price Comparison</h2>
@@ -514,7 +514,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
             </div>
           )}
 
-
+          {/*sprint 3, brianna*/}
           {/*Added nov 26 for new tab*/}
           {activeTab === "recommended" && (
             <div className="recommended-tab">
@@ -558,7 +558,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
 
 
 
-
+          {/*sprint 3, brianna*/}
           {activeTab === "profile" && (
             <div className="profile-tab">
               <h2>My Profile</h2>
@@ -578,8 +578,9 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
                     </ul>
                   )}
                 </div>
-
-                {/* NEW SECTION */}
+                
+                {/*sprint 3, brianna*/}
+                {/* v2 */}
                 {recommendedPlans.length > 0 ? (
                   <div className="recommended-profile-block">
                     <h3>Recommended Insurance Plan</h3>
@@ -608,7 +609,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
             <div>
               <h2>Add Your Medications</h2>
 
-              {/* --- Search box --- */}
+              {/*search box on edit*/}
               <div style={{ marginBottom: "1em" }}>
                 <input
                   type="text"
@@ -619,7 +620,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
                 />
               </div>
 
-              {/* --- Search results --- */}
+              {/*autocomplete search for meds*/}
               {newMed.trim() && (
                 <div>
                   <h4>Search Results:</h4>
@@ -649,7 +650,7 @@ let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
                 </div>
               )}
 
-              {/* --- User’s meds --- */}
+              {/* User’s meds*/}
               <h3>Your Medications:</h3>
               <ul>
                 {userMeds.map((med, i) => (

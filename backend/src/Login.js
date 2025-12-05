@@ -1,9 +1,16 @@
-//login.js
+/*
+Login.js    Ishani Kohli    Virginia Tech   Sprint 1
+frontend login page preforms following functions:
+(1)allow users to enter their username and password
+(2) validates credentials before going to server
+(3)submit creditials to server
+(4)navigate to create an account page if users need to create an account
+*/
 import { useState } from 'react';
 import './Login.css';
 
-// Renders the small gradient "HP" logo used in the sign-in header
-
+//sprint 1, Ishani
+//Renders the small gradient "HP" logo used in the sign-in header
 function HPLogo() {
   return (
     <svg

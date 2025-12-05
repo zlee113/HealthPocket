@@ -1,3 +1,8 @@
+/*
+index.js    HealthPocket    Virginia Tech   sprint 1
+entry point for react frontend
+*/
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

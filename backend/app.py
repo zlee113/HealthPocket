@@ -1,4 +1,12 @@
-#app.py
+"""
+app.py  HealthPocket    Virginia Tech   Sprints1,2,3
+server for Healthpocket. this server routes to the various pages to be displayed to the user
+on the frontend. 
+Computes the top 3 recommended insurance plans for a suser based off their specific medications
+listed on their profile. Uses user_meds, insuranceDB (insruance plan information), 
+and med_master (medication tier/pricing)
+
+"""
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 from flask_cors import CORS
 import csv
@@ -9,27 +17,38 @@ import re
 app = Flask(__name__)
 CORS(app)
 
+#sprint 3, brianna
+#computes top 3 plans for user 
 def compute_recommendations_for_user(username):
     #pull users medications
     with open("user_meds.csv", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         user_meds = [row["medication"] for row in reader if row["username"] == username]
 
+    #no meds case
     if not user_meds:
         return []
 
+    #load out of packet cost and tiers
     med_prices, med_tiers = load_med_data()
+    #loads insurance plans 
     df = pd.read_csv("InsuranceDB.csv")
+    #for list of totals per plan 
     plan_costs = []
 
+    #go through each plan in insuranceDB
     for _, row in df.iterrows():
         plan_id = f"{row['Insurance Company']} — {row['Plan']}"
+        #med cost total under current plan
         med_total_cost = 0
 
+        #for each med user has on their profile
         for med in user_meds:
-            retail = med_prices.get(med, 50)
+            #init , testing purposes (see where fail)
+            retail = med_prices.get(med, 33)
             tier = med_tiers.get(med, 1)
 
+            #go to corrent column in DB depending on tier, using col name here
             if tier == 1:
                 col = "Generic Drugs (Tier 1)"
             elif tier == 2:
@@ -40,23 +59,29 @@ def compute_recommendations_for_user(username):
                 col = "Specialty Drugs (Tier 4)"
 
             val = str(row[col]).strip()
-
+            
+            #no coverage, replace coverage with retail price
             if val.lower() == "no":
                 insurance_cost = retail
+            #precentage based coverage cost
             elif "%" in val:
                 pct = float(val.replace("%", "")) / 100
                 insurance_cost = pct * retail
+            #fixed value coverage cost
             elif "$" in val:
                 insurance_cost = float(val.replace("$", "").replace(",", ""))
+            #default back to retail
             else:
                 insurance_cost = retail
-
+            #total under plan (increment for each med)
             med_total_cost += insurance_cost
 
+        #monthly premium, got rid of ranges in our DB but still works for ranges
         pm = str(row["Est. Monthly Premiums"])
         numbers = re.findall(r"\d+\.?\d*", pm)
         premium = sum(map(float, numbers)) / len(numbers) if numbers else 0
 
+        #save full plan cost obj
         plan_costs.append({
             "plan": plan_id,
             "med_cost": med_total_cost,
@@ -65,23 +90,15 @@ def compute_recommendations_for_user(username):
             "total_yearly": (med_total_cost + premium) * 12
         })
 
+    #sort by total monthly, could change to yearly
     plan_costs.sort(key=lambda x: x["total_monthly"])
+    #return top 3 plans, not all
     return plan_costs[:3]
 
-def load_med_prices():
-    prices = {}
-    with open("med_master.csv", newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            med = row["medication"]
-            try:
-                price = float(row["out_of_pocket"])
-            except:
-                #try this here just incase
-                price = 20
-            prices[med] = price
-    return prices
 
+#sprint 3, brianna
+#loads out of pocket price and tier number
+#helper function for compute_recommended_plans
 def load_med_data():
     med_price = {}
     med_tier = {}
@@ -97,8 +114,7 @@ def load_med_data():
     return med_price, med_tier
 
 
-
-
+#sprint 1, ishani 
 def read_users_csv(csv_path):
     """Load users from a CSV file with columns 'username' and 'password'.
 
@@ -119,7 +135,7 @@ def read_users_csv(csv_path):
                 users[username] = password
     return users
 
-
+#sprint 1, ishani
 @app.post('/login')
 def login():
     """Authenticates a user by comparing credentials against the CSV 'database'."""
@@ -159,16 +175,20 @@ def login():
     # Successful authentication
     return jsonify({'ok': True, 'message': 'User logged in successfully'}), 200
 
+#sprint 2, ishani
 @app.route("/dashboard")
 def dashboard():
     return jsonify({"messgae": "Welcome to dashboard"})
 
+#sprint 1, Zach
+#allow new user to create an account 
 @app.route("/create_account", methods=["GET", "POST"])
 def create_account():
+    #user is submitting a new account
     if request.method == "POST":
         new_username = request.form.get("username")
         new_password = request.form.get("password")
-
+        #safety incase users.csv does not exist, create with header row
         if not os.path.exists("users.csv"):
             with open("users.csv", "w", newline="") as csvfile:
                 writer = csv.writer(csvfile)
@@ -191,12 +211,13 @@ def create_account():
 
     return render_template("create_account.html")
 
-#oct 30
+#sprint 2, brianna
 @app.route("/medications")
 def medications():
+    #need username to pull up relevant information per user
     username = request.args.get("user", "")
 
-    # load master list
+    # load master list (med_master)
     master_list = []
     with open("med_master.csv", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -208,19 +229,23 @@ def medications():
         reader = csv.DictReader(f)
         user_list = [row["medication"] for row in reader if row["username"] == username]
 
+    #both lists, masterList for all meds to show on search, userList for 'your meds'
     return jsonify({"masterList": master_list, "userList": user_list})
 
+#sprint 2, brianna
+#add a medication to the users profile
 @app.route("/add_medication", methods=["POST"])
 def add_medication():
     data = request.get_json()
     username = data.get("username")
     med = data.get("medication")
 
-    # Add to master list if not already there
+    #search for in med master list
     master_meds = []
     with open("med_master.csv", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         master_meds = [row["medication"] for row in reader]
+    #can add med it if need to, not advertised but good functionality for expansion
     if med not in master_meds:
         with open("med_master.csv", "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
@@ -236,30 +261,32 @@ def add_medication():
         with open("user_meds.csv", "a", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow([username, med])
-
+    #good to go!
     return jsonify({"ok": True})
 
 
-
+#sprint 2, brianna
 @app.route("/remove_medication", methods=["POST"])
 def remove_medication():
     data = request.get_json()
     username = data.get("username")
     med = data.get("medication")
 
-    # Step 1: Remove from user_meds.csv
+    #load all of users meds as list of dictionaries
     with open("user_meds.csv", newline="", encoding="utf-8") as f:
         reader = list(csv.DictReader(f))
 
+    #fins username and med pair to be removed
     updated_rows = [row for row in reader if not (row["username"] == username and row["medication"] == med)]
-
+    #rewrite whole file - the removed user/med pair
     with open("user_meds.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["username", "medication"])
         writer.writeheader()
         writer.writerows(updated_rows)
-
+    #good to go !!!
     return jsonify({"ok": True})
 
+#sprint 3, zach
 @app.route("/compare_medications", methods=["POST"])
 def compare_medication():
     data = request.get_json()
@@ -341,7 +368,7 @@ def compare_medication():
     })
 
 
-#added nov 2
+#sprint 2, yongjoon
 @app.route("/insurance_plans", methods=["GET"])
 def get_insurance_plans():
     try:
@@ -358,7 +385,7 @@ def get_insurance_plans():
         print("Error loading insurance plans:", e)
         return jsonify({"error": str(e)}), 500
     
-#added nov 26 sprint 3
+#sprint 3, brianna
 @app.route("/recommend_insurance", methods=["POST"])
 def recommend_insurance():
     data = request.get_json()

@@ -1,25 +1,38 @@
-//dashboard.js
+/*
+Dashboard.js  HealthPocket  Virginia Tech   Sprints 2,3
+frontend dashboard page. displays 5 tabs: edit medications, insurance plans, 
+recommended plans, medication price comparison, my profile
+*/
 
 import { useState, useEffect } from "react";
 import "./Dashboard.css"; 
 
+
+//user session
 function Dashboard() {
+  //sprint 2, brianna
+  //username from local storage
   const [username, setUsername] = useState(() => {
     return localStorage.getItem('hp_username') || '';
   });
+  //which tab is active on side bar, start at edit meds
   const [activeTab, setActiveTab] = useState("medications");
-  // Income slider states
+  
+  // sprint 3, yongjoon
+  //Income slider states
   const [income, setIncome] = useState(0); // user-selected income (0 = show all)
   const [maxIncome] = useState(79000);    // upper bound for slider
 
-
+  //sprint 2, brianna
+  //clear username and redirect to login page
   const handleSignOut = () => {
     localStorage.removeItem('hp_username'); // clear stored username
     window.location.hash = '#/login';
 
   };
 
-  //nov 2
+  //sprint 2,yongjoon
+  //logo for insurance companies
   const getLogo = (company) => {
     if (!company) return "/logos/default.svg";
     const name = company.toLowerCase();
@@ -28,27 +41,31 @@ function Dashboard() {
     if (name.includes("sentara")) return "/logos/sentara.svg";
     if (name.includes("anthem")) return "/logos/anthem.svg";
 
-    return "/logos/default.svg"; // just inscase
+    return "/logos/default.svg"; // just incase
   };
 
-  //added 30
+  //sprint3, brianna
+  //medication 
   const [medMasterList, setMedMasterList] = useState([]); // master medication list
   const [userMeds, setUserMeds] = useState([]);           // user's medications
-  const [newMed, setNewMed] = useState("");               // text input
+  const [newMed, setNewMed] = useState("");               // search box
+  //price comparison
   const [medPrices, setMedPrices] = useState([]);	  // med prices for each insurance company
-  const [insuranceCompanies, setInsuranceCompanies] = useState([]);	  // different insurance companies
+  const [insuranceCompanies, setInsuranceCompanies] = useState([]);	  // insuranceDB
   const [medPricesLoaded, setMedPricesLoaded] = useState(false);	  // Prices load when tab
-  const [userInsurance, setUserInsurance] = useState(""); // store current insurance plan
-
-  //added nov 26
+  
+  //sprint3, brianna
+  //recommendation
   const [recommendedPlans, setRecommendedPlans] = useState([]); //for new sidebar
   const [recommendedLoaded, setRecommendedLoaded] = useState(false);  //for new sidebar
+  //$00.00 formatting for display
   const formatPrice = (price) => {
     return typeof price === "number" ? `$${price.toFixed(2)}` : "-";
   };  
 
 
-  //
+  //sprint 2, brianna
+  //load username
   useEffect(() => {
     try {
       const stored = localStorage.getItem('hp_username') || '';
@@ -58,6 +75,8 @@ function Dashboard() {
     }
   }, []);
 
+  //sprint 2, brianna
+  //dashboard connection to server
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -71,7 +90,8 @@ function Dashboard() {
     fetchDashboard();
   }, []);
 
-  //30
+  //sprint 3, brianna
+  //get user meds when username changes
   useEffect(() => {
     const fetchMeds = async () => {
       try {
@@ -86,6 +106,8 @@ function Dashboard() {
     fetchMeds();
   }, [username]);
 
+  //sprint 2, brianna
+  //add meds to local user list and post to server
   const handleAddMedication = async (med) => {
     //update 
     if (!userMeds.includes(med)) {
@@ -103,6 +125,8 @@ function Dashboard() {
     }
   };
 
+  //sprint2, brianna
+  //removes meds on local list and post to backend
   const handleRemoveMedication = async (med) => {
     //update
     setUserMeds(prev => prev.filter(m => m !== med));
@@ -118,6 +142,8 @@ function Dashboard() {
     }
   };
 
+  //sprint 3, brianna
+  //price comparison
   const fetchMedPrices = async () => {
     const res = await fetch("/compare_medications", {
       method: "POST",
@@ -129,7 +155,8 @@ function Dashboard() {
     setMedPricesLoaded(true);  // mark as loaded
   };
 
-  //added nov 2
+  //sprint2, yongjoon
+  //insurance plans
   useEffect(() => {
     const fetchInsurancePlans = async () => {
       try {
@@ -144,24 +171,9 @@ function Dashboard() {
     fetchInsurancePlans();
   }, []);
 
-  useEffect(() => {
-    const fetchUserInsurance = async () => {
-      try {
-        const res = await fetch(`http://localhost:5001/user_insurance?user=${username}`);
-        const data = await res.json();
-        setUserInsurance(data.insurance || "Not selected");
-      } catch (err) {
-        console.error("Error fetching user insurance:", err);
-        setUserInsurance("Not selected");
-      }
-    };
 
-    if (username) {
-      fetchUserInsurance();
-    }
-  }, [username]);
-
-  //added nov 26 for new dashboard tab
+  //sprint3, brianna
+  //recommended 3 plans from server
   const fetchRecommendedPlans = async () => {
     setRecommendedLoaded(false);
     try {
@@ -184,14 +196,13 @@ function Dashboard() {
     setRecommendedLoaded(true);
   };
   
-
-
+  //sprint3, brianna
+  //load this when dashboard loads
   useEffect(() => {
     if (recommendedPlans.length === 0 && username) {
       fetchRecommendedPlans();
     }
   }, [username]);  
-  
   //refresh on edit medications
   useEffect(() => {
     if (activeTab === "profile" && username) {
@@ -205,8 +216,8 @@ function Dashboard() {
     }
   }, [userMeds]);
   
-    // Total cost per column
-  // Total cost per column (use the *displayed* price in each column)
+// sprint 3, zach
+//Total cost per column for med price comparison table
 let totalColumnCost = {
   retail: 0,
 };
@@ -230,11 +241,10 @@ medPrices.forEach((med) => {
   });
 });
 
-// select lowest total-cost column
+// select lowest total cost column for display
 let bestOverallColumn = Object.keys(totalColumnCost).reduce((a, b) =>
   totalColumnCost[a] <= totalColumnCost[b] ? a : b
 );
-
 
 
 

@@ -92,3 +92,97 @@ Hydroxychloroquine,Autoimmune / Antimalarial,no,1
 Baclofen,Muscle relaxant,no,1
 Dapagliflozin,Antidiabetic (SGLT2 inhibitor),no,3
 Apixaban,Anticoagulant,no,3
+medication,category,common_in_20_25,tier,out_of_pocket
+Levothyroxine,Thyroid hormone replacement,yes,1,20
+Sertraline,Antidepressant (SSRI),yes,1,20
+Escitalopram,Antidepressant (SSRI),yes,1,20
+Fluoxetine,Antidepressant (SSRI),yes,1,20
+Citalopram,Antidepressant (SSRI),yes,1,20
+Bupropion,Antidepressant / Smoking cessation,yes,1,20
+Venlafaxine,Antidepressant (SNRI),yes,1,20
+Duloxetine,Antidepressant (SNRI),yes,2,100
+Trazodone,Antidepressant / Sleep aid,yes,1,20
+Mirtazapine,Antidepressant / Sleep aid,yes,1,20
+Buspirone,Anxiolytic (non-benzodiazepine),yes,1,20
+Alprazolam,Anxiolytic (benzodiazepine),yes,1,20
+Lorazepam,Anxiolytic (benzodiazepine),yes,1,20
+Clonazepam,Anxiolytic / Seizure,yes,1,20
+Lamotrigine,Anticonvulsant / Mood stabilizer,yes,1,20
+Topiramate,Anticonvulsant / Migraine prevention,yes,1,20
+Gabapentin,Nerve pain / Seizure,yes,1,20
+Hydroxyzine,Anxiolytic / Allergy,yes,1,20
+Drospirenone-ethinyl estradiol,Oral contraceptive,yes,2,100
+Levonorgestrel-ethinyl estradiol,Oral contraceptive,yes,1,20
+Norgestimate-ethinyl estradiol,Oral contraceptive,yes,1,20
+Levonorgestrel IUD,Hormonal contraceptive,yes,4,1200
+Etonogestrel implant,Hormonal contraceptive,yes,4,1200
+Montelukast,Asthma / Allergy,yes,1,20
+Albuterol,Asthma rescue inhaler,yes,2,100
+Fluticasone,Nasal steroid / Asthma control,yes,2,100
+Budesonide,Asthma / Nasal steroid,yes,2,100
+Prednisone,Corticosteroid,no,1,20
+Diclofenac,NSAID,no,1,20
+Cyclobenzaprine,Muscle relaxant,yes,1,20
+Tizanidine,Muscle relaxant,yes,1,20
+Methocarbamol,Muscle relaxant,no,1,20
+Sumatriptan,Migraine treatment,yes,2,100
+Ondansetron,Antiemetic (nausea),yes,1,20
+Promethazine,Antiemetic / Allergy,no,1,20
+Metformin,Antidiabetic / PCOS,yes,1,20
+Spironolactone,Acne / PCOS / Diuretic,yes,1,20
+Semaglutide,Diabetes / Weight management,yes,4,1200
+Liraglutide,Diabetes / Weight management,yes,4,1200
+Omeprazole,GERD / Acid reflux,yes,1,20
+Pantoprazole,GERD / Acid reflux,no,1,20
+Sucralfate,Ulcer treatment,no,1,20
+Isotretinoin,Severe acne,yes,3,200
+Doxycycline,Antibiotic / Acne,yes,1,20
+Amoxicillin,Antibiotic,yes,1,20
+Azithromycin,Antibiotic,yes,1,20
+Clindamycin,Antibiotic / Acne,yes,1,20
+Nitrofurantoin,UTI antibiotic,yes,1,20
+Trimethoprim-sulfamethoxazole,UTI antibiotic,yes,1,20
+Ciprofloxacin,Antibiotic (broad spectrum),no,1,20
+Levofloxacin,Antibiotic (broad spectrum),no,1,20
+Acyclovir,Antiviral (HSV),yes,1,20
+Valacyclovir,Antiviral (HSV),yes,2,100
+Oseltamivir,Antiviral (flu),yes,2,100
+Fluconazole,Antifungal (yeast infections),yes,1,20
+Nystatin,Antifungal,no,1,20
+Hydrocodone-acetaminophen,Pain relief (opioid),no,2,100
+Tramadol,Pain relief (opioid-like),yes,1,20
+Zolpidem,Sleep aid,yes,1,20
+Eszopiclone,Sleep aid,no,2,100
+Methylphenidate,Stimulant (ADHD),yes,2,100
+Amphetamine-dextroamphetamine,Stimulant (ADHD),yes,2,100
+Lisdexamfetamine,Stimulant (ADHD),yes,3,200
+Atomoxetine,Non-stimulant ADHD,yes,2,100
+Modafinil,Wakefulness / Narcolepsy,yes,3,200
+Risperidone,Antipsychotic / Bipolar,yes,2,100
+Aripiprazole,Antipsychotic / Depression adjunct,yes,3,200
+Quetiapine,Antipsychotic / Sleep / Bipolar,yes,2,100
+Olanzapine,Antipsychotic,no,2,100
+Finasteride,Hair loss / Prostate,no,2,100
+Minoxidil,Hair loss,yes,1,20
+Oxybutynin,Overactive bladder,no,1,20
+Tamsulosin,Urinary retention,no,1,20
+Allopurinol,Gout,no,1,20
+Colchicine,Gout,no,2,100
+Hydrochlorothiazide,Blood pressure / Diuretic,no,1,20
+Lisinopril,Blood pressure,no,1,20
+Amlodipine,Blood pressure,no,1,20
+Losartan,Blood pressure,no,1,20
+Metoprolol,Blood pressure,no,1,20
+Simvastatin,Cholesterol,no,1,20
+Atorvastatin,Cholesterol,no,1,20
+Rosuvastatin,Cholesterol,no,2,100
+Norethindrone-ethinyl estradiol,Oral contraceptive,yes,1,20
+Propranolol,Beta blocker / Migraine,yes,1,20
+Guanfacine,Non-stimulant ADHD,yes,2,100
+Clonidine,Hypertension / ADHD adjunct,no,1,20
+Metronidazole,Antibiotic / Antiprotozoal,yes,1,20
+Clomiphene,Fertility treatment,no,3,200
+Hydroxychloroquine,Autoimmune / Antimalarial,no,1,20
+Baclofen,Muscle relaxant,no,1,20
+Dapagliflozin,Antidiabetic (SGLT2 inhibitor),no,3,200
+Apixaban,Anticoagulant,no,3,200
